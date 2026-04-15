@@ -1,0 +1,12 @@
+   2  VOID
+   2  ID:main
+   2  LPAR
+   2  RPAR
+   3  LACC
+   4  ID:put_s
+   4  LPAR
+   4  CT_STRING:hello
+   4  RPAR
+   4  SEMICOLON
+   5  RACC
+   7  END

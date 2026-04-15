@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lex-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build lexer
+        run: make
+
+      - name: Run lexer against tests/
+        run: |
+          set -e
+          fail=0
+          for f in tests/*.c; do
+            base=$(basename "$f" .c)
+            expected="tests/expected/$base.txt"
+            actual="build/$base.out"
+            ./build/atomc "$f" > "$actual"
+            if diff -u "$expected" "$actual"; then
+              echo "PASS $f"
+            else
+              echo "FAIL $f"
+              fail=1
+            fi
+          done
+          exit $fail
