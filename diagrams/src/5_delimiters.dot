@@ -1,0 +1,40 @@
+digraph TD_Delimiters {
+    rankdir=LR;
+    bgcolor=white;
+    node [fontname="Arial", fontsize=12];
+    edge [fontname="Arial", fontsize=11];
+
+    start [shape=point, width=0.2];
+    start -> s0;
+
+    s0 [shape=circle, label="0", width=0.5, fixedsize=true];
+
+    // Delimiters
+    fCOMMA [shape=doublecircle, label="COMMA", width=0.7];
+    fSEMI [shape=doublecircle, label="SEMICOLON", width=0.7];
+    fLPAR [shape=doublecircle, label="LPAR", width=0.7];
+    fRPAR [shape=doublecircle, label="RPAR", width=0.7];
+    fLBR [shape=doublecircle, label="LBRACKET", width=0.7];
+    fRBR [shape=doublecircle, label="RBRACKET", width=0.7];
+    fLACC [shape=doublecircle, label="LACC", width=0.7];
+    fRACC [shape=doublecircle, label="RACC", width=0.7];
+
+    // Simple operators
+    fADD [shape=doublecircle, label="ADD", width=0.7];
+    fSUB [shape=doublecircle, label="SUB", width=0.7];
+    fMUL [shape=doublecircle, label="MUL", width=0.7];
+    fDOT [shape=doublecircle, label="DOT", width=0.7];
+
+    s0 -> fCOMMA [label="','"];
+    s0 -> fSEMI [label="';'"];
+    s0 -> fLPAR [label="'('"];
+    s0 -> fRPAR [label="')'"];
+    s0 -> fLBR [label="'['"];
+    s0 -> fRBR [label="']'"];
+    s0 -> fLACC [label="'{'"];
+    s0 -> fRACC [label="'}'"];
+    s0 -> fADD [label="'+'"];
+    s0 -> fSUB [label="'-'"];
+    s0 -> fMUL [label="'*'"];
+    s0 -> fDOT [label="'.'"];
+}

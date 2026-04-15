@@ -1,0 +1,36 @@
+digraph TD_Constants {
+    rankdir=LR;
+    bgcolor=white;
+    node [fontname="Arial", fontsize=12];
+    edge [fontname="Arial", fontsize=11];
+
+    start [shape=point, width=0.2];
+    start -> s0;
+
+    s0 [shape=circle, label="0", width=0.5, fixedsize=true];
+
+    // CT_CHAR path
+    s1 [shape=circle, label="1", width=0.5, fixedsize=true];
+    s2 [shape=circle, label="2", width=0.5, fixedsize=true];
+    fCHAR [shape=doublecircle, label="3\nCT_CHAR", width=0.9, fixedsize=true];
+
+    s0 -> s1 [label="'\\''"];
+    s1 -> s2 [label="[^']"];
+    s2 -> fCHAR [label="'\\''"];
+
+    err1 [shape=rect, label="ERR: empty char\nconstant", style=filled, fillcolor="#ffdddd"];
+    err2 [shape=rect, label="ERR: missing\nclosing quote", style=filled, fillcolor="#ffdddd"];
+    s1 -> err1 [label="'\\''"];
+    s2 -> err2 [label="[^']"];
+
+    // CT_STRING path
+    s3 [shape=circle, label="4", width=0.5, fixedsize=true];
+    fSTR [shape=doublecircle, label="5\nCT_STRING", width=1.0, fixedsize=true];
+
+    s0 -> s3 [label="'\"'"];
+    s3 -> s3 [label="[^\"]"];
+    s3 -> fSTR [label="'\"'"];
+
+    err3 [shape=rect, label="ERR: unterminated\nstring", style=filled, fillcolor="#ffdddd"];
+    s3 -> err3 [label="\\0"];
+}

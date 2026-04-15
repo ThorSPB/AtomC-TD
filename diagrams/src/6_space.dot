@@ -1,0 +1,13 @@
+digraph TD_Space {
+    rankdir=LR;
+    bgcolor=white;
+    node [fontname="Arial", fontsize=12];
+    edge [fontname="Arial", fontsize=11];
+
+    start [shape=point, width=0.2];
+    start -> s0;
+
+    s0 [shape=circle, label="0", width=0.5, fixedsize=true];
+
+    s0 -> s0 [label="space, \\n, \\r, \\t"];
+}

@@ -1,0 +1,93 @@
+digraph TD_Numbers {
+    rankdir=LR;
+    bgcolor=white;
+    node [fontname="Arial", fontsize=11];
+    edge [fontname="Arial", fontsize=10];
+    label="1. Numbers: CT_INT (decimal, octal, hex) / CT_REAL";
+    labelloc=t;
+    fontsize=13;
+    fontname="Arial Bold";
+
+    // Initial arrow
+    start [shape=point, width=0.2];
+    start -> s0;
+
+    // States
+    s0 [shape=circle, label="0", width=0.5, fixedsize=true, style=bold];
+
+    // ── DECIMAL PATH (starts with 1-9) ──
+    s1 [shape=circle, label="1", width=0.5, fixedsize=true];
+
+    s0 -> s1 [label="1-9"];
+    s1 -> s1 [label="0-9"];
+    s1 -> s5 [label="'.'"];
+    s1 -> s7 [label="e, E"];
+    s1 -> fINT [label="else", style=dashed];
+
+    // ── LEADING ZERO (could be octal, hex, decimal 0, or real) ──
+    s2 [shape=circle, label="2", width=0.5, fixedsize=true];
+
+    s0 -> s2 [label="'0'"];
+
+    // From leading 0:
+    //   'x'/'X' → hex
+    //   0-7     → octal
+    //   '.'     → real
+    //   e/E     → real with exponent
+    //   else    → CT_INT (just the value 0)
+
+    s2 -> s3 [label="x, X"];
+    s2 -> s4 [label="0-7"];
+    s2 -> s5 [label="'.'"];
+    s2 -> s7 [label="e, E"];
+    s2 -> fINT [label="else", style=dashed];
+
+    // ── HEX PATH (after 0x) ──
+    s3 [shape=circle, label="3", width=0.5, fixedsize=true];
+    s3h [shape=circle, label="4", width=0.5, fixedsize=true];
+
+    s3 -> s3h [label="0-9, a-f, A-F"];
+    s3 -> errHex [label="else", style=dashed];
+    s3h -> s3h [label="0-9, a-f, A-F"];
+    s3h -> fINT [label="else", style=dashed];
+
+    errHex [shape=rect, label="ERR: hex digit\nexpected after '0x'", style=filled, fillcolor="#ffdddd", fontsize=9];
+
+    // ── OCTAL PATH (after 0 + octal digit) ──
+    s4 [shape=circle, label="5", width=0.5, fixedsize=true];
+
+    s4 -> s4 [label="0-7"];
+    s4 -> fINT [label="else", style=dashed];
+
+    // ── DECIMAL PART (after '.') ──
+    s5 [shape=circle, label="6", width=0.5, fixedsize=true];
+    s6 [shape=circle, label="7", width=0.5, fixedsize=true];
+
+    s5 -> s6 [label="0-9"];
+    s5 -> errDot [label="else", style=dashed];
+    s6 -> s6 [label="0-9"];
+    s6 -> s7 [label="e, E"];
+    s6 -> fREAL1 [label="else", style=dashed];
+
+    errDot [shape=rect, label="ERR: digit expected\nafter '.'", style=filled, fillcolor="#ffdddd", fontsize=9];
+
+    // ── EXPONENT PATH (after e/E) ──
+    s7 [shape=circle, label="8", width=0.5, fixedsize=true];
+    s8 [shape=circle, label="9", width=0.5, fixedsize=true];
+    s9 [shape=circle, label="10", width=0.5, fixedsize=true];
+
+    s7 -> s8 [label="+, -"];
+    s7 -> s9 [label="0-9"];
+    s7 -> errExp [label="else", style=dashed];
+    s8 -> s9 [label="0-9"];
+    s8 -> errExp [label="else", style=dashed];
+    s9 -> s9 [label="0-9"];
+    s9 -> fREAL2 [label="else", style=dashed];
+
+    errExp [shape=rect, label="ERR: digit/sign expected\nin exponent", style=filled, fillcolor="#ffdddd", fontsize=9];
+
+    // ── FINAL STATES ──
+    fINT [shape=doublecircle, label="CT_INT", width=0.85, fixedsize=true];
+    fREAL1 [shape=doublecircle, label="CT_REAL", width=0.85, fixedsize=true];
+    fREAL2 [shape=doublecircle, label="CT_REAL", width=0.85, fixedsize=true];
+}

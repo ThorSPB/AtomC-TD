@@ -1,0 +1,232 @@
+digraph AtomC_Unified_TD {
+    rankdir=LR;
+    bgcolor=white;
+    node [fontname="Arial", fontsize=10];
+    edge [fontname="Arial", fontsize=9];
+    label="AtomC — Unified Transition Diagram\n'else' transitions (dashed) do NOT consume the input character.\nCT_INT supports decimal, octal (0...), and hexadecimal (0x...) formats.";
+    labelloc=t;
+    fontsize=14;
+    fontname="Arial Bold";
+
+    // Initial state
+    start [shape=point, width=0.25];
+    s0 [shape=circle, label="0", width=0.5, fixedsize=true, style=bold];
+    start -> s0;
+
+    // ── SPACE (loops on s0) ──
+    s0 -> s0 [label="space,\\n,\\r,\\t"];
+
+    // ══════════════════════════════════════
+    // NUMBERS: CT_INT (dec/oct/hex) / CT_REAL
+    // ══════════════════════════════════════
+
+    // Decimal path (1-9)
+    s1 [shape=circle, label="1", width=0.45, fixedsize=true];
+    // Leading zero
+    s2 [shape=circle, label="2", width=0.45, fixedsize=true];
+    // Hex path
+    s3 [shape=circle, label="3", width=0.45, fixedsize=true];
+    s3h [shape=circle, label="4", width=0.45, fixedsize=true];
+    // Octal path
+    s4o [shape=circle, label="5", width=0.45, fixedsize=true];
+    // Decimal part (after '.')
+    s5 [shape=circle, label="6", width=0.45, fixedsize=true];
+    s6 [shape=circle, label="7", width=0.45, fixedsize=true];
+    // Exponent
+    s7e [shape=circle, label="8", width=0.45, fixedsize=true];
+    s8e [shape=circle, label="9", width=0.45, fixedsize=true];
+    s9e [shape=circle, label="10", width=0.45, fixedsize=true];
+
+    fINT [shape=doublecircle, label="CT_INT", width=0.8, fixedsize=true];
+    fREAL1 [shape=doublecircle, label="CT_REAL", width=0.8, fixedsize=true];
+    fREAL2 [shape=doublecircle, label="CT_REAL", width=0.8, fixedsize=true];
+    errHex [shape=rect, label="ERR: hex digit\nexpected after '0x'", style=filled, fillcolor="#ffdddd", fontsize=8];
+    errDot [shape=rect, label="ERR: digit expected\nafter '.'", style=filled, fillcolor="#ffdddd", fontsize=8];
+    errExp [shape=rect, label="ERR: digit/sign expected\nin exponent", style=filled, fillcolor="#ffdddd", fontsize=8];
+
+    // Decimal (1-9)
+    s0 -> s1 [label="1-9"];
+    s1 -> s1 [label="0-9"];
+    s1 -> s5 [label="'.'"];
+    s1 -> s7e [label="e, E"];
+    s1 -> fINT [label="else", style=dashed];
+
+    // Leading zero
+    s0 -> s2 [label="'0'"];
+    s2 -> s3 [label="x, X"];
+    s2 -> s4o [label="0-7"];
+    s2 -> s5 [label="'.'"];
+    s2 -> s7e [label="e, E"];
+    s2 -> fINT [label="else", style=dashed];
+
+    // Hex
+    s3 -> s3h [label="0-9, a-f, A-F"];
+    s3 -> errHex [label="else", style=dashed];
+    s3h -> s3h [label="0-9, a-f, A-F"];
+    s3h -> fINT [label="else", style=dashed];
+
+    // Octal
+    s4o -> s4o [label="0-7"];
+    s4o -> fINT [label="else", style=dashed];
+
+    // Decimal part
+    s5 -> s6 [label="0-9"];
+    s5 -> errDot [label="else", style=dashed];
+    s6 -> s6 [label="0-9"];
+    s6 -> s7e [label="e, E"];
+    s6 -> fREAL1 [label="else", style=dashed];
+
+    // Exponent
+    s7e -> s8e [label="+, -"];
+    s7e -> s9e [label="0-9"];
+    s7e -> errExp [label="else", style=dashed];
+    s8e -> s9e [label="0-9"];
+    s8e -> errExp [label="else", style=dashed];
+    s9e -> s9e [label="0-9"];
+    s9e -> fREAL2 [label="else", style=dashed];
+
+    // ══════════════════════════════════════
+    // ID
+    // ══════════════════════════════════════
+    s10 [shape=circle, label="10", width=0.45, fixedsize=true];
+    fID [shape=doublecircle, label="11\nID", width=0.7, fixedsize=true];
+
+    s0 -> s10 [label="a-zA-Z_"];
+    s10 -> s10 [label="a-zA-Z0-9_"];
+    s10 -> fID [label="else", style=dashed];
+
+    // ══════════════════════════════════════
+    // CT_CHAR
+    // ══════════════════════════════════════
+    s12 [shape=circle, label="12", width=0.45, fixedsize=true];
+    s13 [shape=circle, label="13", width=0.45, fixedsize=true];
+    fCHAR [shape=doublecircle, label="14\nCT_CHAR", width=0.8, fixedsize=true];
+    errCharEmpty [shape=rect, label="ERR: empty\nchar", style=filled, fillcolor="#ffdddd", fontsize=8];
+    errCharClose [shape=rect, label="ERR: missing\nclosing '", style=filled, fillcolor="#ffdddd", fontsize=8];
+
+    s0 -> s12 [label="'"];
+    s12 -> s13 [label="[^']"];
+    s12 -> errCharEmpty [label="'"];
+    s13 -> fCHAR [label="'"];
+    s13 -> errCharClose [label="[^']"];
+
+    // ══════════════════════════════════════
+    // CT_STRING
+    // ══════════════════════════════════════
+    s15 [shape=circle, label="15", width=0.45, fixedsize=true];
+    fSTR [shape=doublecircle, label="16\nCT_STRING", width=0.9, fixedsize=true];
+    errStr [shape=rect, label="ERR: unterminated\nstring", style=filled, fillcolor="#ffdddd", fontsize=8];
+
+    s0 -> s15 [label="\""];
+    s15 -> s15 [label="[^\"]"];
+    s15 -> fSTR [label="\""];
+    s15 -> errStr [label="\\0"];
+
+    // ══════════════════════════════════════
+    // DIV / LINECOMMENT
+    // ══════════════════════════════════════
+    s17 [shape=circle, label="17", width=0.45, fixedsize=true];
+    s18 [shape=circle, label="18", width=0.45, fixedsize=true];
+    fDIV [shape=doublecircle, label="19\nDIV", width=0.7, fixedsize=true];
+
+    s0 -> s17 [label="'/'"];
+    s17 -> s18 [label="'/'"];
+    s17 -> fDIV [label="else", style=dashed];
+    s18 -> s18 [label="[^\\n\\r\\0]"];
+    s18 -> s0 [label="\\n,\\r,\\0", style=dashed, constraint=false];
+
+    // ══════════════════════════════════════
+    // NOT / NOTEQ
+    // ══════════════════════════════════════
+    s20 [shape=circle, label="20", width=0.45, fixedsize=true];
+    fNOT [shape=doublecircle, label="21\nNOT", width=0.7, fixedsize=true];
+    fNOTEQ [shape=doublecircle, label="22\nNOTEQ", width=0.7, fixedsize=true];
+
+    s0 -> s20 [label="'!'"];
+    s20 -> fNOTEQ [label="'='"];
+    s20 -> fNOT [label="else", style=dashed];
+
+    // ══════════════════════════════════════
+    // ASSIGN / EQUAL
+    // ══════════════════════════════════════
+    s23 [shape=circle, label="23", width=0.45, fixedsize=true];
+    fASSIGN [shape=doublecircle, label="24\nASSIGN", width=0.7, fixedsize=true];
+    fEQUAL [shape=doublecircle, label="25\nEQUAL", width=0.7, fixedsize=true];
+
+    s0 -> s23 [label="'='"];
+    s23 -> fEQUAL [label="'='"];
+    s23 -> fASSIGN [label="else", style=dashed];
+
+    // ══════════════════════════════════════
+    // LESS / LESSEQ
+    // ══════════════════════════════════════
+    s26 [shape=circle, label="26", width=0.45, fixedsize=true];
+    fLESS [shape=doublecircle, label="27\nLESS", width=0.7, fixedsize=true];
+    fLESSEQ [shape=doublecircle, label="28\nLESSEQ", width=0.7, fixedsize=true];
+
+    s0 -> s26 [label="'<'"];
+    s26 -> fLESSEQ [label="'='"];
+    s26 -> fLESS [label="else", style=dashed];
+
+    // ══════════════════════════════════════
+    // GREATER / GREATEREQ
+    // ══════════════════════════════════════
+    s29 [shape=circle, label="29", width=0.45, fixedsize=true];
+    fGREATER [shape=doublecircle, label="30\nGREATER", width=0.8, fixedsize=true];
+    fGREATEREQ [shape=doublecircle, label="31\nGREATEREQ", width=1.0, fixedsize=true];
+
+    s0 -> s29 [label="'>'"];
+    s29 -> fGREATEREQ [label="'='"];
+    s29 -> fGREATER [label="else", style=dashed];
+
+    // ══════════════════════════════════════
+    // AND
+    // ══════════════════════════════════════
+    s32 [shape=circle, label="32", width=0.45, fixedsize=true];
+    fAND [shape=doublecircle, label="33\nAND", width=0.7, fixedsize=true];
+    errAND [shape=rect, label="ERR: '&'\nexpected", style=filled, fillcolor="#ffdddd", fontsize=8];
+
+    s0 -> s32 [label="'&'"];
+    s32 -> fAND [label="'&'"];
+    s32 -> errAND [label="else", style=dashed];
+
+    // ══════════════════════════════════════
+    // OR
+    // ══════════════════════════════════════
+    s34 [shape=circle, label="34", width=0.45, fixedsize=true];
+    fOR [shape=doublecircle, label="35\nOR", width=0.7, fixedsize=true];
+    errOR [shape=rect, label="ERR: '|'\nexpected", style=filled, fillcolor="#ffdddd", fontsize=8];
+
+    s0 -> s34 [label="'|'"];
+    s34 -> fOR [label="'|'"];
+    s34 -> errOR [label="else", style=dashed];
+
+    // ══════════════════════════════════════
+    // SINGLE-CHARACTER DELIMITERS & OPERATORS
+    // ══════════════════════════════════════
+    fCOMMA [shape=doublecircle, label="COMMA", width=0.65];
+    fSEMI [shape=doublecircle, label="SEMI\nCOLON", width=0.65];
+    fLPAR [shape=doublecircle, label="LPAR", width=0.65];
+    fRPAR [shape=doublecircle, label="RPAR", width=0.65];
+    fLBR [shape=doublecircle, label="LBRA\nCKET", width=0.65];
+    fRBR [shape=doublecircle, label="RBRA\nCKET", width=0.65];
+    fLACC [shape=doublecircle, label="LACC", width=0.65];
+    fRACC [shape=doublecircle, label="RACC", width=0.65];
+    fADD [shape=doublecircle, label="ADD", width=0.65];
+    fSUB [shape=doublecircle, label="SUB", width=0.65];
+    fMUL [shape=doublecircle, label="MUL", width=0.65];
+    fDOT [shape=doublecircle, label="DOT", width=0.65];
+
+    s0 -> fCOMMA [label="','"];
+    s0 -> fSEMI [label="';'"];
+    s0 -> fLPAR [label="'('"];
+    s0 -> fRPAR [label="')'"];
+    s0 -> fLBR [label="'['"];
+    s0 -> fRBR [label="']'"];
+    s0 -> fLACC [label="'{'"];
+    s0 -> fRACC [label="'}'"];
+    s0 -> fADD [label="'+'"];
+    s0 -> fSUB [label="'-'"];
+    s0 -> fMUL [label="'*'"];
+    s0 -> fDOT [label="'.'"];
+}

@@ -1,0 +1,76 @@
+digraph TD_Operators {
+    rankdir=LR;
+    bgcolor=white;
+    node [fontname="Arial", fontsize=12];
+    edge [fontname="Arial", fontsize=11];
+
+    start [shape=point, width=0.2];
+    start -> s0;
+
+    s0 [shape=circle, label="0", width=0.5, fixedsize=true];
+
+    // DIV / LINECOMMENT
+    s1 [shape=circle, label="1", width=0.5, fixedsize=true];
+    s2 [shape=circle, label="2", width=0.5, fixedsize=true];
+    fDIV [shape=doublecircle, label="3\nDIV", width=0.7, fixedsize=true];
+
+    s0 -> s1 [label="'/'"];
+    s1 -> s2 [label="'/'"];
+    s1 -> fDIV [label="else", style=dashed];
+    s2 -> s2 [label="[^\\n\\r\\0]"];
+    s2 -> s0 [label="\\n, \\r, \\0", style=dashed, constraint=false];
+
+    // NOT / NOTEQ
+    s3 [shape=circle, label="4", width=0.5, fixedsize=true];
+    fNOT [shape=doublecircle, label="5\nNOT", width=0.7, fixedsize=true];
+    fNOTEQ [shape=doublecircle, label="6\nNOTEQ", width=0.7, fixedsize=true];
+
+    s0 -> s3 [label="'!'"];
+    s3 -> fNOTEQ [label="'='"];
+    s3 -> fNOT [label="else", style=dashed];
+
+    // ASSIGN / EQUAL
+    s4 [shape=circle, label="7", width=0.5, fixedsize=true];
+    fASSIGN [shape=doublecircle, label="8\nASSIGN", width=0.7, fixedsize=true];
+    fEQUAL [shape=doublecircle, label="9\nEQUAL", width=0.7, fixedsize=true];
+
+    s0 -> s4 [label="'='"];
+    s4 -> fEQUAL [label="'='"];
+    s4 -> fASSIGN [label="else", style=dashed];
+
+    // LESS / LESSEQ
+    s5 [shape=circle, label="10", width=0.5, fixedsize=true];
+    fLESS [shape=doublecircle, label="11\nLESS", width=0.7, fixedsize=true];
+    fLESSEQ [shape=doublecircle, label="12\nLESSEQ", width=0.7, fixedsize=true];
+
+    s0 -> s5 [label="'<'"];
+    s5 -> fLESSEQ [label="'='"];
+    s5 -> fLESS [label="else", style=dashed];
+
+    // GREATER / GREATEREQ
+    s6 [shape=circle, label="13", width=0.5, fixedsize=true];
+    fGREATER [shape=doublecircle, label="14\nGREATER", width=0.9, fixedsize=true];
+    fGREATEREQ [shape=doublecircle, label="15\nGREATEREQ", width=1.1, fixedsize=true];
+
+    s0 -> s6 [label="'>'"];
+    s6 -> fGREATEREQ [label="'='"];
+    s6 -> fGREATER [label="else", style=dashed];
+
+    // AND
+    s7 [shape=circle, label="16", width=0.5, fixedsize=true];
+    fAND [shape=doublecircle, label="17\nAND", width=0.7, fixedsize=true];
+    errAND [shape=rect, label="ERR: '&' expected", style=filled, fillcolor="#ffdddd"];
+
+    s0 -> s7 [label="'&'"];
+    s7 -> fAND [label="'&'"];
+    s7 -> errAND [label="else", style=dashed];
+
+    // OR
+    s8 [shape=circle, label="18", width=0.5, fixedsize=true];
+    fOR [shape=doublecircle, label="19\nOR", width=0.7, fixedsize=true];
+    errOR [shape=rect, label="ERR: '|' expected", style=filled, fillcolor="#ffdddd"];
+
+    s0 -> s8 [label="'|'"];
+    s8 -> fOR [label="'|'"];
+    s8 -> errOR [label="else", style=dashed];
+}

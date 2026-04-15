@@ -1,0 +1,21 @@
+# Claude Code
+CLAUDE.md
+.claude/
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Build artifacts (for upcoming L3 lexer)
+*.o
+*.obj
+*.exe
+*.out
+build/

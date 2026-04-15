@@ -1,0 +1,303 @@
+digraph AtomC_TD {
+    rankdir=LR;
+    bgcolor=white;
+    node [fontname="Arial", fontsize=11];
+    edge [fontname="Arial", fontsize=10];
+    label="AtomC — Complete Transition Diagram\nAll sub-diagrams share state 0 as the common initial state.\n'else' transitions (dashed) do NOT consume the input character.";
+    labelloc=t;
+    fontsize=16;
+    fontname="Arial Bold";
+    compound=true;
+    newrank=true;
+
+    // ══════════════════════════════════════════════
+    // 6. SPACE (no token) — declared first = rendered bottom
+    // ══════════════════════════════════════════════
+    subgraph cluster_space {
+        label="6. Whitespace / SPACE (no token generated)";
+        fontsize=13;
+        fontname="Arial Bold";
+        style=rounded;
+        color="#333333";
+        bgcolor="#f5f5f5";
+
+        s_start [shape=point, width=0.2];
+        s0 [shape=circle, label="0", width=0.5, fixedsize=true];
+
+        s_start -> s0;
+        s0 -> s0 [label="space, \\n, \\r, \\t"];
+    }
+
+    // ══════════════════════════════════════════════
+    // 5. SINGLE-CHAR DELIMITERS & OPERATORS
+    // ══════════════════════════════════════════════
+    subgraph cluster_delimiters {
+        label="5. Single-Character Delimiters & Operators";
+        fontsize=13;
+        fontname="Arial Bold";
+        style=rounded;
+        color="#333333";
+        bgcolor="#f5ffff";
+
+        d_start [shape=point, width=0.2];
+        d0 [shape=circle, label="0", width=0.5, fixedsize=true];
+
+        dfCOMMA [shape=doublecircle, label="COMMA", width=0.7];
+        dfSEMI [shape=doublecircle, label="SEMICOLON", width=0.7];
+        dfLPAR [shape=doublecircle, label="LPAR", width=0.7];
+        dfRPAR [shape=doublecircle, label="RPAR", width=0.7];
+        dfLBR [shape=doublecircle, label="LBRACKET", width=0.7];
+        dfRBR [shape=doublecircle, label="RBRACKET", width=0.7];
+        dfLACC [shape=doublecircle, label="LACC", width=0.7];
+        dfRACC [shape=doublecircle, label="RACC", width=0.7];
+        dfADD [shape=doublecircle, label="ADD", width=0.7];
+        dfSUB [shape=doublecircle, label="SUB", width=0.7];
+        dfMUL [shape=doublecircle, label="MUL", width=0.7];
+        dfDOT [shape=doublecircle, label="DOT", width=0.7];
+
+        d_start -> d0;
+        d0 -> dfCOMMA [label="','"];
+        d0 -> dfSEMI [label="';'"];
+        d0 -> dfLPAR [label="'('"];
+        d0 -> dfRPAR [label="')'"];
+        d0 -> dfLBR [label="'['"];
+        d0 -> dfRBR [label="']'"];
+        d0 -> dfLACC [label="'{'"];
+        d0 -> dfRACC [label="'}'"];
+        d0 -> dfADD [label="'+'"];
+        d0 -> dfSUB [label="'-'"];
+        d0 -> dfMUL [label="'*'"];
+        d0 -> dfDOT [label="'.'"];
+    }
+
+    // ══════════════════════════════════════════════
+    // 4. OPERATORS with shared prefixes (factorized)
+    // ══════════════════════════════════════════════
+    subgraph cluster_operators {
+        label="4. Operators (factorized prefixes)";
+        fontsize=13;
+        fontname="Arial Bold";
+        style=rounded;
+        color="#333333";
+        bgcolor="#fff5f5";
+
+        o_start [shape=point, width=0.2];
+        o0 [shape=circle, label="0", width=0.5, fixedsize=true];
+
+        // DIV / LINECOMMENT
+        o1 [shape=circle, label="1", width=0.5, fixedsize=true];
+        o2 [shape=circle, label="2", width=0.5, fixedsize=true];
+        ofDIV [shape=doublecircle, label="3\nDIV", width=0.7, fixedsize=true];
+
+        // NOT / NOTEQ
+        o4 [shape=circle, label="4", width=0.5, fixedsize=true];
+        ofNOT [shape=doublecircle, label="5\nNOT", width=0.7, fixedsize=true];
+        ofNOTEQ [shape=doublecircle, label="6\nNOTEQ", width=0.7, fixedsize=true];
+
+        // ASSIGN / EQUAL
+        o7 [shape=circle, label="7", width=0.5, fixedsize=true];
+        ofASSIGN [shape=doublecircle, label="8\nASSIGN", width=0.7, fixedsize=true];
+        ofEQUAL [shape=doublecircle, label="9\nEQUAL", width=0.7, fixedsize=true];
+
+        // LESS / LESSEQ
+        o10 [shape=circle, label="10", width=0.5, fixedsize=true];
+        ofLESS [shape=doublecircle, label="11\nLESS", width=0.7, fixedsize=true];
+        ofLESSEQ [shape=doublecircle, label="12\nLESSEQ", width=0.7, fixedsize=true];
+
+        // GREATER / GREATEREQ
+        o13 [shape=circle, label="13", width=0.5, fixedsize=true];
+        ofGREATER [shape=doublecircle, label="14\nGREATER", width=0.9, fixedsize=true];
+        ofGREATEREQ [shape=doublecircle, label="15\nGREATEREQ", width=1.1, fixedsize=true];
+
+        // AND
+        o16 [shape=circle, label="16", width=0.5, fixedsize=true];
+        ofAND [shape=doublecircle, label="17\nAND", width=0.7, fixedsize=true];
+        oerrAND [shape=rect, label="ERR: '&'\nexpected", style=filled, fillcolor="#ffdddd"];
+
+        // OR
+        o18 [shape=circle, label="18", width=0.5, fixedsize=true];
+        ofOR [shape=doublecircle, label="19\nOR", width=0.7, fixedsize=true];
+        oerrOR [shape=rect, label="ERR: '|'\nexpected", style=filled, fillcolor="#ffdddd"];
+
+        o_start -> o0;
+
+        o0 -> o1 [label="'/'"];
+        o1 -> o2 [label="'/'"];
+        o1 -> ofDIV [label="else", style=dashed];
+        o2 -> o2 [label="[^\\n\\r\\0]"];
+        o2 -> o0 [label="\\n, \\r, \\0", style=dashed, constraint=false];
+
+        o0 -> o4 [label="'!'"];
+        o4 -> ofNOTEQ [label="'='"];
+        o4 -> ofNOT [label="else", style=dashed];
+
+        o0 -> o7 [label="'='"];
+        o7 -> ofEQUAL [label="'='"];
+        o7 -> ofASSIGN [label="else", style=dashed];
+
+        o0 -> o10 [label="'<'"];
+        o10 -> ofLESSEQ [label="'='"];
+        o10 -> ofLESS [label="else", style=dashed];
+
+        o0 -> o13 [label="'>'"];
+        o13 -> ofGREATEREQ [label="'='"];
+        o13 -> ofGREATER [label="else", style=dashed];
+
+        o0 -> o16 [label="'&'"];
+        o16 -> ofAND [label="'&'"];
+        o16 -> oerrAND [label="else", style=dashed];
+
+        o0 -> o18 [label="'|'"];
+        o18 -> ofOR [label="'|'"];
+        o18 -> oerrOR [label="else", style=dashed];
+    }
+
+    // ══════════════════════════════════════════════
+    // 3. CONSTANTS: CT_CHAR, CT_STRING
+    // ══════════════════════════════════════════════
+    subgraph cluster_constants {
+        label="3. Constants: CT_CHAR, CT_STRING";
+        fontsize=13;
+        fontname="Arial Bold";
+        style=rounded;
+        color="#333333";
+        bgcolor="#fffff5";
+
+        c_start [shape=point, width=0.2];
+        c0 [shape=circle, label="0", width=0.5, fixedsize=true];
+
+        c1 [shape=circle, label="1", width=0.5, fixedsize=true];
+        c2 [shape=circle, label="2", width=0.5, fixedsize=true];
+        cfCHAR [shape=doublecircle, label="3\nCT_CHAR", width=0.9, fixedsize=true];
+        cerr1 [shape=rect, label="ERR: empty char\nconstant", style=filled, fillcolor="#ffdddd"];
+        cerr2 [shape=rect, label="ERR: missing\nclosing quote", style=filled, fillcolor="#ffdddd"];
+
+        c3 [shape=circle, label="4", width=0.5, fixedsize=true];
+        cfSTR [shape=doublecircle, label="5\nCT_STRING", width=1.0, fixedsize=true];
+        cerr3 [shape=rect, label="ERR: unterminated\nstring", style=filled, fillcolor="#ffdddd"];
+
+        c_start -> c0;
+        c0 -> c1 [label="  '  "];
+        c1 -> c2 [label="[^']"];
+        c1 -> cerr1 [label="  '  "];
+        c2 -> cfCHAR [label="  '  "];
+        c2 -> cerr2 [label="[^']"];
+
+        c0 -> c3 [label="  \"  "];
+        c3 -> c3 [label="[^\"]"];
+        c3 -> cfSTR [label="  \"  "];
+        c3 -> cerr3 [label="\\0"];
+    }
+
+    // ══════════════════════════════════════════════
+    // 2. IDENTIFIERS: ID
+    // ══════════════════════════════════════════════
+    subgraph cluster_id {
+        label="2. Identifiers: ID\n(keywords matched later as special IDs)";
+        fontsize=13;
+        fontname="Arial Bold";
+        style=rounded;
+        color="#333333";
+        bgcolor="#f9fff9";
+
+        i_start [shape=point, width=0.2];
+        i0 [shape=circle, label="0", width=0.5, fixedsize=true];
+        i1 [shape=circle, label="1", width=0.5, fixedsize=true];
+        ifID [shape=doublecircle, label="2\nID", width=0.7, fixedsize=true];
+
+        i_start -> i0;
+        i0 -> i1 [label="a-zA-Z_"];
+        i1 -> i1 [label="a-zA-Z0-9_"];
+        i1 -> ifID [label="else", style=dashed];
+    }
+
+    // ══════════════════════════════════════════════
+    // 1. NUMBERS: CT_INT (dec/oct/hex) / CT_REAL — declared last = rendered top
+    // ══════════════════════════════════════════════
+    subgraph cluster_numbers {
+        label="1. Numbers: CT_INT (decimal, octal, hex) / CT_REAL";
+        fontsize=13;
+        fontname="Arial Bold";
+        style=rounded;
+        color="#333333";
+        bgcolor="#f9f9ff";
+
+        n_start [shape=point, width=0.2];
+        n0 [shape=circle, label="0", width=0.5, fixedsize=true, style=bold];
+
+        // Decimal path (starts with 1-9)
+        n1 [shape=circle, label="1", width=0.5, fixedsize=true];
+
+        // Leading zero path
+        n2 [shape=circle, label="2", width=0.5, fixedsize=true];
+
+        // Hex path (after 0x)
+        n3 [shape=circle, label="3", width=0.5, fixedsize=true];
+        n3h [shape=circle, label="4", width=0.5, fixedsize=true];
+
+        // Octal path
+        n4 [shape=circle, label="5", width=0.5, fixedsize=true];
+
+        // Decimal part (after '.')
+        n5 [shape=circle, label="6", width=0.5, fixedsize=true];
+        n6 [shape=circle, label="7", width=0.5, fixedsize=true];
+
+        // Exponent path
+        n7 [shape=circle, label="8", width=0.5, fixedsize=true];
+        n8 [shape=circle, label="9", width=0.5, fixedsize=true];
+        n9 [shape=circle, label="10", width=0.5, fixedsize=true];
+
+        // Final states
+        nfINT [shape=doublecircle, label="CT_INT", width=0.85, fixedsize=true];
+        nfREAL1 [shape=doublecircle, label="CT_REAL", width=0.85, fixedsize=true];
+        nfREAL2 [shape=doublecircle, label="CT_REAL", width=0.85, fixedsize=true];
+
+        // Error states
+        nerrHex [shape=rect, label="ERR: hex digit\nexpected after '0x'", style=filled, fillcolor="#ffdddd"];
+        nerrDot [shape=rect, label="ERR: digit expected\nafter '.'", style=filled, fillcolor="#ffdddd"];
+        nerrExp [shape=rect, label="ERR: digit/sign expected\nin exponent", style=filled, fillcolor="#ffdddd"];
+
+        n_start -> n0;
+
+        // Decimal (1-9)
+        n0 -> n1 [label="1-9"];
+        n1 -> n1 [label="0-9"];
+        n1 -> n5 [label="'.'"];
+        n1 -> n7 [label="e, E"];
+        n1 -> nfINT [label="else", style=dashed];
+
+        // Leading zero
+        n0 -> n2 [label="'0'"];
+        n2 -> n3 [label="x, X"];
+        n2 -> n4 [label="0-7"];
+        n2 -> n5 [label="'.'"];
+        n2 -> n7 [label="e, E"];
+        n2 -> nfINT [label="else", style=dashed];
+
+        // Hex
+        n3 -> n3h [label="0-9, a-f, A-F"];
+        n3 -> nerrHex [label="else", style=dashed];
+        n3h -> n3h [label="0-9, a-f, A-F"];
+        n3h -> nfINT [label="else", style=dashed];
+
+        // Octal
+        n4 -> n4 [label="0-7"];
+        n4 -> nfINT [label="else", style=dashed];
+
+        // Decimal part
+        n5 -> n6 [label="0-9"];
+        n5 -> nerrDot [label="else", style=dashed];
+        n6 -> n6 [label="0-9"];
+        n6 -> n7 [label="e, E"];
+        n6 -> nfREAL1 [label="else", style=dashed];
+
+        // Exponent
+        n7 -> n8 [label="+, -"];
+        n7 -> n9 [label="0-9"];
+        n7 -> nerrExp [label="else", style=dashed];
+        n8 -> n9 [label="0-9"];
+        n8 -> nerrExp [label="else", style=dashed];
+        n9 -> n9 [label="0-9"];
+        n9 -> nfREAL2 [label="else", style=dashed];
+    }
+}
