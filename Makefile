@@ -4,15 +4,19 @@
 # launcher, which is not what we want here.
 ifeq ($(OS),Windows_NT)
     SHELL := C:/Program Files/Git/bin/bash.exe
+    EXE   := .exe
 else
     SHELL := /bin/bash
+    EXE   :=
 endif
 
 CC      = gcc
 CFLAGS  = -Wall -Wextra -std=c99 -O2
 SRCDIR  = src
 BUILD   = build
-TARGET  = $(BUILD)/atomc
+# On Windows gcc produces build/atomc.exe — the $(EXE) suffix keeps make
+# tracking the real filename, otherwise it would re-link on every invocation.
+TARGET  = $(BUILD)/atomc$(EXE)
 
 SRCS := $(wildcard $(SRCDIR)/*.c)
 OBJS := $(patsubst $(SRCDIR)/%.c,$(BUILD)/%.o,$(SRCS))
@@ -28,11 +32,16 @@ $(TARGET): $(OBJS) | $(BUILD)
 $(BUILD)/%.o: $(SRCDIR)/%.c $(SRCDIR)/atomc.h | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# The trailing ` ||:` is a shell-metachar trick. Without it, GNU Make on
+# Windows decides the recipe is "simple" and runs it via CreateProcess instead
+# of SHELL, which fails because rm/mkdir aren't native Windows commands. Any
+# shell metacharacter (;, &&, ||) forces Make to hand the line to SHELL (bash)
+# where rm/mkdir are always available.
 $(BUILD):
-	mkdir -p $(BUILD)
+	@mkdir -p $(BUILD) ||:
 
 run: $(TARGET)
-	./$(TARGET) $(FILE)
+	@./$(TARGET) $(FILE) ||:
 
 test: $(TARGET)
 	@fail=0; pass=0; total_tokens=0; \
@@ -62,6 +71,6 @@ test: $(TARGET)
 	test $$fail -eq 0
 
 clean:
-	rm -rf $(BUILD)
+	@rm -rf $(BUILD) ||:
 
 .PHONY: all run test clean
