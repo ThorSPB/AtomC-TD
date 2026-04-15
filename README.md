@@ -26,11 +26,14 @@ Contains both the transition-diagram (TD) design and a working C implementation 
 ## Building and running the lexer
 
 ```bash
-make
-./build/atomc tests/0.c
+make                         # build build/atomc
+make run                     # build + run against tests/0.c (default)
+make run FILE=tests/5.c      # run against a specific file
+make test                    # build + run all tests and diff against tests/expected/
+make clean                   # delete the build/ directory
 ```
 
-Output is one token per line in the form `<line>  <TOKEN_NAME>[:attribute]`, ending with `END`. Example:
+Lexer output is one token per line in the form `<line>  <TOKEN_NAME>[:attribute]`, ending with `END`. Example:
 
 ```
    2  INT
@@ -41,7 +44,7 @@ Output is one token per line in the form `<line>  <TOKEN_NAME>[:attribute]`, end
   21  END
 ```
 
-`make clean` removes the `build/` directory.
+`make test` compares each file's output against `tests/expected/<name>.txt` and prints a `PASS`/`FAIL` summary. This is the same check GitHub Actions runs on every push.
 
 ## Diagrams
 
