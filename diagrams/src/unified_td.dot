@@ -88,8 +88,8 @@ digraph AtomC_Unified_TD {
     // ══════════════════════════════════════
     // ID
     // ══════════════════════════════════════
-    s10 [shape=circle, label="10", width=0.45, fixedsize=true];
-    fID [shape=doublecircle, label="11\nID", width=0.7, fixedsize=true];
+    s10 [shape=circle, label="11", width=0.45, fixedsize=true];
+    fID [shape=doublecircle, label="12\nID", width=0.7, fixedsize=true];
 
     s0 -> s10 [label="a-zA-Z_"];
     s10 -> s10 [label="a-zA-Z0-9_"];

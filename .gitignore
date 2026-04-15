@@ -13,7 +13,7 @@ desktop.ini
 *.swp
 *~
 
-# Build artifacts (for upcoming L3 lexer)
+# Build artifacts
 *.o
 *.obj
 *.exe
