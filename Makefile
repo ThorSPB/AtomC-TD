@@ -5,6 +5,13 @@
 ifeq ($(OS),Windows_NT)
     SHELL := C:/Program Files/Git/bin/bash.exe
     EXE   := .exe
+    # cc1.exe (the compiler proper that gcc spawns) silently fails to load
+    # its DLLs unless mingw's bin directory is on PATH. If gcc is installed
+    # at the standard chocolatey location, prepend it automatically so the
+    # Makefile works from any parent shell (PowerShell, cmd, git-bash).
+    ifneq ($(wildcard C:/ProgramData/mingw64/mingw64/bin/gcc.exe),)
+        export PATH := C:/ProgramData/mingw64/mingw64/bin;$(PATH)
+    endif
 else
     SHELL := /bin/bash
     EXE   :=
