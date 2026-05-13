@@ -1,6 +1,7 @@
 #include "atomc.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static char *readFile(const char *path) {
     FILE *f = fopen(path, "rb");
@@ -19,14 +20,25 @@ static char *readFile(const char *path) {
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-        fprintf(stderr, "usage: %s <file.c>\n", argv[0]);
+        fprintf(stderr, "usage: %s [--parse] <file.c>\n", argv[0]);
         return 1;
     }
-    char *src = readFile(argv[1]);
+    int doParse = 0;
+    const char *path = argv[1];
+    if (argc >= 3 && (strcmp(argv[1], "--parse") == 0 || strcmp(argv[1], "-p") == 0)) {
+        doParse = 1;
+        path = argv[2];
+    }
+    char *src = readFile(path);
     pCrtCh = src;
     line = 1;
     while (getNextToken() != END) { /* drive the lexer until EOF */ }
-    showTokens();
+    if (doParse) {
+        parse(tokens);
+        printf("syntax OK\n");
+    } else {
+        showTokens();
+    }
     done();
     free(src);
     return 0;

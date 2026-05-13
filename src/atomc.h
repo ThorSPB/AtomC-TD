@@ -42,6 +42,13 @@ Token *addTk(int code);
 int getNextToken(void);
 void showTokens(void);
 void done(void);
+const char *tokenName(int code);
+
+/* Parser (parser.c) */
+extern Token *crtTk;
+extern Token *consumedTk;
+int consume(int code);
+void parse(Token *tokenList);
 
 #define SAFEALLOC(var, Type) \
     do { if (((var) = (Type*)malloc(sizeof(Type))) == NULL) err("not enough memory"); } while (0)

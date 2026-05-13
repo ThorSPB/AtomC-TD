@@ -34,6 +34,12 @@ static const char *TOKEN_NAMES[] = {
     "ASSIGN","EQUAL","NOTEQ","LESS","LESSEQ","GREATER","GREATEREQ"
 };
 
+const char *tokenName(int code) {
+    int n = (int)(sizeof(TOKEN_NAMES) / sizeof(TOKEN_NAMES[0]));
+    if (code < 0 || code >= n) return "?";
+    return TOKEN_NAMES[code];
+}
+
 void err(const char *fmt, ...) {
     va_list va;
     va_start(va, fmt);

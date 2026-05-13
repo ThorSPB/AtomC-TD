@@ -1,6 +1,8 @@
 # Claude Code
 CLAUDE.md
 .claude/
+docs/code_explanation.md
+docs/parser_explanation.md
 
 # OS
 Thumbs.db

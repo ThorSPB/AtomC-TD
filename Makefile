@@ -50,6 +50,40 @@ $(BUILD):
 run: $(TARGET)
 	@./$(TARGET) $(FILE) ||:
 
+# Parse one file. Override with: make parse FILE=tests/parser/ok/04_struct.c
+parse: $(TARGET)
+	@./$(TARGET) --parse $(FILE) ||:
+
+# Run every file in tests/parser/{ok,err} and check the expected outcome.
+parse-test: $(TARGET)
+	@pass=0; fail=0; \
+	printf '%-44s  %s\n' "FILE" "RESULT"; \
+	printf '%-44s  %s\n' "--------------------------------------------" "------"; \
+	for f in tests/parser/ok/*.c; do \
+		out=$$(./$(TARGET) --parse $$f 2>&1); \
+		if echo "$$out" | grep -q "syntax OK"; then \
+			printf '%-44s  \033[32m%s\033[0m\n' "$$f" "PASS"; \
+			pass=$$((pass+1)); \
+		else \
+			printf '%-44s  \033[31m%s\033[0m  %s\n' "$$f" "FAIL" "$$out"; \
+			fail=$$((fail+1)); \
+		fi; \
+	done; \
+	for f in tests/parser/err/*.c; do \
+		out=$$(./$(TARGET) --parse $$f 2>&1); \
+		if echo "$$out" | grep -q "syntax error"; then \
+			msg=$$(echo "$$out" | head -n1); \
+			printf '%-44s  \033[32m%s\033[0m  %s\n' "$$f" "ERR! " "$$msg"; \
+			pass=$$((pass+1)); \
+		else \
+			printf '%-44s  \033[31m%s\033[0m  (expected error, got: %s)\n' "$$f" "FAIL" "$$out"; \
+			fail=$$((fail+1)); \
+		fi; \
+	done; \
+	echo "---------------------------------------------------"; \
+	printf '%d passed, %d failed\n' $$pass $$fail; \
+	test $$fail -eq 0
+
 test: $(TARGET)
 	@fail=0; pass=0; total_tokens=0; \
 	printf '%-16s  %-6s  %6s  %6s  %5s\n' "FILE" "RESULT" "LINES" "TOKENS" "KINDS"; \
@@ -77,7 +111,10 @@ test: $(TARGET)
 	echo "(see tests/README.md for what each file exercises)"; \
 	test $$fail -eq 0
 
+# Run the full test suite — lexer snapshots + parser ok/err. Used by CI.
+check: test parse-test
+
 clean:
 	@rm -rf $(BUILD) ||:
 
-.PHONY: all run test clean
+.PHONY: all run parse test parse-test check clean

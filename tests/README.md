@@ -31,3 +31,12 @@ Across all 10 tests, the lexer is exercised on:
 - **Line comments** at the start and end of a file (tests/1.c).
 
 Untested end-to-end: `BREAK`, `WHILE`, `NOT`, `NOTEQ`, `OR`. The lexer has code paths for all of them and the FSM logic is symmetric with the tested ones, but if you want to demonstrate them to the teacher, write a small `.c` with `while(...)`, `!x`, `x!=y`, and `a||b` and run `make run FILE=...`.
+
+## Parser tests (`parser/`)
+
+The files under `parser/ok/` and `parser/err/` are dedicated to the L4 syntactic analyzer (`make parse-test`). They are separate from `0.c`–`9.c` because some of those programs use C-style syntax that AtomC's formal grammar deliberately does not allow:
+
+- Multi-declarator `int i, j, k;` — the rule is `varDef: typeBase ID arrayDecl? SEMICOLON` (one ID per declaration). Affects `tests/0.c`, `5.c`, `6.c`, `7.c`, `9.c`.
+- Expression array bounds `v[20/4+5]` — the rule is `arrayDecl: LBRACKET CT_INT? RBRACKET` (only an integer constant, or empty). Affects `tests/9.c`.
+
+`tests/parser/ok/*` cover variable declarations, control flow, structs (with a `CT_INT` array bound), the full expression precedence ladder, casts, unary chains, and function calls with 0/1/N arguments. `tests/parser/err/*` exercise the `tkerr` paths — missing `;`, missing `)`, missing `;` after `struct`, and a missing operand. Each error file's first comment line states the message the parser is expected to produce.
