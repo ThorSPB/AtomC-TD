@@ -54,35 +54,47 @@ run: $(TARGET)
 parse: $(TARGET)
 	@./$(TARGET) --parse $(FILE) ||:
 
-# Run every file in tests/parser/{ok,err} and check the expected outcome.
+# Run the analyzer over tests/<dir>/{ok,err}: ok files must exit 0, err
+# files must exit non-zero. $(1) is the directory name under tests/.
+define run_analyzer_tests
+@pass=0; fail=0; \
+printf '%-46s  %s\n' "FILE" "RESULT"; \
+printf '%-46s  %s\n' "----------------------------------------------" "------"; \
+for f in tests/$(1)/ok/*.c; do \
+	if ./$(TARGET) --parse $$f >/dev/null 2>&1; then \
+		printf '%-46s  \033[32m%s\033[0m\n' "$$f" "PASS"; \
+		pass=$$((pass+1)); \
+	else \
+		msg=$$(./$(TARGET) --parse $$f 2>&1 >/dev/null | head -n1); \
+		printf '%-46s  \033[31m%s\033[0m  %s\n' "$$f" "FAIL" "$$msg"; \
+		fail=$$((fail+1)); \
+	fi; \
+done; \
+for f in tests/$(1)/err/*.c; do \
+	if ./$(TARGET) --parse $$f >/dev/null 2>&1; then \
+		printf '%-46s  \033[31m%s\033[0m  (expected an error)\n' "$$f" "FAIL"; \
+		fail=$$((fail+1)); \
+	else \
+		msg=$$(./$(TARGET) --parse $$f 2>&1 >/dev/null | head -n1); \
+		printf '%-46s  \033[32m%s\033[0m  %s\n' "$$f" "ERR!" "$$msg"; \
+		pass=$$((pass+1)); \
+	fi; \
+done; \
+echo "-----------------------------------------------------"; \
+printf '%d passed, %d failed\n' $$pass $$fail; \
+test $$fail -eq 0
+endef
+
+# Syntax + domain + type tests. Each ok file must analyze cleanly; each err
+# file must be rejected by the phase it targets.
 parse-test: $(TARGET)
-	@pass=0; fail=0; \
-	printf '%-44s  %s\n' "FILE" "RESULT"; \
-	printf '%-44s  %s\n' "--------------------------------------------" "------"; \
-	for f in tests/parser/ok/*.c; do \
-		out=$$(./$(TARGET) --parse $$f 2>&1); \
-		if echo "$$out" | grep -q "syntax OK"; then \
-			printf '%-44s  \033[32m%s\033[0m\n' "$$f" "PASS"; \
-			pass=$$((pass+1)); \
-		else \
-			printf '%-44s  \033[31m%s\033[0m  %s\n' "$$f" "FAIL" "$$out"; \
-			fail=$$((fail+1)); \
-		fi; \
-	done; \
-	for f in tests/parser/err/*.c; do \
-		out=$$(./$(TARGET) --parse $$f 2>&1); \
-		if echo "$$out" | grep -q "syntax error"; then \
-			msg=$$(echo "$$out" | head -n1); \
-			printf '%-44s  \033[32m%s\033[0m  %s\n' "$$f" "ERR! " "$$msg"; \
-			pass=$$((pass+1)); \
-		else \
-			printf '%-44s  \033[31m%s\033[0m  (expected error, got: %s)\n' "$$f" "FAIL" "$$out"; \
-			fail=$$((fail+1)); \
-		fi; \
-	done; \
-	echo "---------------------------------------------------"; \
-	printf '%d passed, %d failed\n' $$pass $$fail; \
-	test $$fail -eq 0
+	$(call run_analyzer_tests,parser)
+
+domain-test: $(TARGET)
+	$(call run_analyzer_tests,domain)
+
+type-test: $(TARGET)
+	$(call run_analyzer_tests,types)
 
 test: $(TARGET)
 	@fail=0; pass=0; total_tokens=0; \
@@ -111,10 +123,10 @@ test: $(TARGET)
 	echo "(see tests/README.md for what each file exercises)"; \
 	test $$fail -eq 0
 
-# Run the full test suite — lexer snapshots + parser ok/err. Used by CI.
-check: test parse-test
+# Run the full test suite — lexer snapshots + parser/domain/type. Used by CI.
+check: test parse-test domain-test type-test
 
 clean:
 	@rm -rf $(BUILD) ||:
 
-.PHONY: all run parse test parse-test check clean
+.PHONY: all run parse test parse-test domain-test type-test check clean

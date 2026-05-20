@@ -1,4 +1,5 @@
 #include "atomc.h"
+#include "symbols.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,8 +35,9 @@ int main(int argc, char **argv) {
     line = 1;
     while (getNextToken() != END) { /* drive the lexer until EOF */ }
     if (doParse) {
-        parse(tokens);
-        printf("syntax OK\n");
+        parse(tokens);      /* parse + domain analysis; exits non-zero on any error */
+        dumpSymbols();      /* on success, print the symbol table (L5 deliverable) */
+        freeSymbols();
     } else {
         showTokens();
     }

@@ -40,3 +40,13 @@ The files under `parser/ok/` and `parser/err/` are dedicated to the L4 syntactic
 - Expression array bounds `v[20/4+5]` — the rule is `arrayDecl: LBRACKET CT_INT? RBRACKET` (only an integer constant, or empty). Affects `tests/9.c`.
 
 `tests/parser/ok/*` cover variable declarations, control flow, structs (with a `CT_INT` array bound), the full expression precedence ladder, casts, unary chains, and function calls with 0/1/N arguments. `tests/parser/err/*` exercise the `tkerr` paths — missing `;`, missing `)`, missing `;` after `struct`, and a missing operand. Each error file's first comment line states the message the parser is expected to produce.
+
+## Domain analysis tests (`domain/`)
+
+`make domain-test` runs the L5 phase. `domain/ok/*` are programs whose declarations are all consistent — valid nested-scope shadowing, structs defined before use. `domain/err/*` are syntactically valid but break a domain rule: redefined variable / struct / function / parameter, a function-body local colliding with a parameter, an undefined struct type, and a vector variable with no dimension. Each `err` file's first comment line states the expected error.
+
+## Type analysis tests (`types/`)
+
+`make type-test` runs the L6 phase. `types/ok/*` are fully valid programs exercising implicit numeric conversions, casts, array indexing, and struct field access. `types/err/*` each break one type rule: undefined identifier, calling a non-function, using a function name as a value, too few / too many / wrong-typed call arguments, assigning to a non-l-value, returning a value from a `void` function, a non-scalar condition, indexing a non-array, and selecting a field of a non-struct. Each `err` file's first comment line states the expected error.
+
+`make check` runs the lexer snapshots plus all three analyzer suites.

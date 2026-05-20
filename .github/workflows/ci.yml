@@ -19,3 +19,9 @@ jobs:
 
       - name: Parser tests (ok + err)
         run: make parse-test
+
+      - name: Domain analysis tests (ok + err)
+        run: make domain-test
+
+      - name: Type analysis tests (ok + err)
+        run: make type-test

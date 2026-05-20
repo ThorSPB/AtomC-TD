@@ -5,7 +5,9 @@
 //   - LESSEQ (<=) and GREATEREQ (>=) operators
 //   - if without else (also covered in 03 inside a for, included again here at top)
 //   - empty struct (no fields)
-//   - empty arrayDecl `[]` (no size)
+// note: an empty arrayDecl `[]` is valid only for a function parameter
+// (see 06_function_calls.c); for a variable it is a domain error, so it
+// is not exercised here.
 
 struct Empty {
 };
@@ -24,8 +26,6 @@ int clamp(int x)
 
 void main()
 {
-	int v[];
-
 	;                          // empty statement
 
 	for (;;) ;                 // infinite loop with empty body (which is itself just `;`)
