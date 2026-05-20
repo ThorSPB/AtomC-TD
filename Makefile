@@ -33,6 +33,31 @@ FILE ?= tests/0.c
 
 all: $(TARGET)
 
+# Show the available targets and how to use them.
+# The recipe is one `;`-joined command so GNU Make routes it through SHELL
+# (bash) instead of running each `echo` directly via CreateProcess — there
+# is no echo.exe on a bare Windows PATH, only bash's builtin.
+help:
+	@echo 'AtomC compiler front-end - make targets:'; \
+	echo ''; \
+	echo '  make              build build/atomc$(EXE) (default target)'; \
+	echo '  make help         show this list'; \
+	echo '  make clean        remove the build/ directory'; \
+	echo ''; \
+	echo '  make run   FILE=f tokenize f and print the token stream'; \
+	echo '  make parse FILE=f run the full analyzer on f (parse + domain + type)'; \
+	echo '                    FILE defaults to $(FILE); override as shown'; \
+	echo ''; \
+	echo '  make test         lexer snapshot tests       (tests/*.c)'; \
+	echo '  make parse-test   syntax tests               (tests/parser/{ok,err})'; \
+	echo '  make domain-test  L5 domain-analysis tests   (tests/domain/{ok,err})'; \
+	echo '  make type-test    L6 type-analysis tests     (tests/types/{ok,err})'; \
+	echo '  make check        run every suite above'; \
+	echo ''; \
+	echo '  examples:'; \
+	echo '    make parse FILE=tests/parser/ok/04_struct.c'; \
+	echo '    make run   FILE=tests/8.c'
+
 $(TARGET): $(OBJS) | $(BUILD)
 	$(CC) $(CFLAGS) $(OBJS) -o $@
 
@@ -129,4 +154,4 @@ check: test parse-test domain-test type-test
 clean:
 	@rm -rf $(BUILD) ||:
 
-.PHONY: all run parse test parse-test domain-test type-test check clean
+.PHONY: all help run parse test parse-test domain-test type-test check clean
